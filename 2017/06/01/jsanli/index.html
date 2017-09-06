@@ -6,14 +6,18 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
   <link rel="dns-prefetch" href="http://yoursite.com">
-  <title>Archives: 2017/7 | kingsoftYang</title>
+  <title>记常见JS面试题的一次详细分析过程 | kingsoftYang</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta property="og:type" content="website">
-<meta property="og:title" content="kingsoftYang">
-<meta property="og:url" content="http://yoursite.com/archives/2017/07/index.html">
+  <meta name="description" content="详细分析了一段源生JS代码的执行过程，很有帮助，还有一个特例案例，求指教">
+<meta property="og:type" content="article">
+<meta property="og:title" content="记常见JS面试题的一次详细分析过程">
+<meta property="og:url" content="http://yoursite.com/2017/06/01/jsanli/index.html">
 <meta property="og:site_name" content="kingsoftYang">
+<meta property="og:description" content="详细分析了一段源生JS代码的执行过程，很有帮助，还有一个特例案例，求指教">
+<meta property="og:updated_time" content="2017-07-29T08:07:06.782Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="kingsoftYang">
+<meta name="twitter:title" content="记常见JS面试题的一次详细分析过程">
+<meta name="twitter:description" content="详细分析了一段源生JS代码的执行过程，很有帮助，还有一个特例案例，求指教">
   
     <link rel="alternative" href="/atom.xml" title="kingsoftYang" type="application/atom+xml">
   
@@ -155,113 +159,58 @@
             <canvas data-colors="#eaeaea" data-sectionHeight="100" data-contentId="js-content" id="myCanvas1" class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            
-  
-  
+            <article id="post-jsanli" class="article article-type-post " itemscope itemprop="blogPost">
+  <div class="article-inner">
     
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      记常见JS面试题的一次详细分析过程
+    </h1>
+  
+
+        
+        <a href="/2017/06/01/jsanli/" class="archive-article-date">
+  	<time datetime="2017-06-01T03:12:34.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-06-01</time>
+</a>
+        
+      </header>
     
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>详细分析了一段源生JS代码的执行过程，很有帮助，还有一个特例案例，求指教<br><a id="more"></a></p>
+<blockquote>
+<p>代码分析  </p>
+</blockquote>
+<p>-&gt; 目的是分析清楚代码每一句话的执行过程与结果. 目的在于学会分析代码的执行原理以及分析面试题.<br>-&gt; 分析步骤<br>    1&gt; js 代码在预解析的时候会做两件事情, 一个是语法, 另一个是记录声明( 不包括函数内的声明 )<br>    2&gt; 预解析完成后会从第一行代码开始依次执行 js 代码( 语句 )<br>    3&gt; 如果进入了函数, 会在函数进入, 执行之前, 对函数内再进行对应的预解析<br>    4&gt; 如果函数内预解析结束, 再从函数开始的位置一步一步的执行代码.  </p>
+<p>注意: 就是每一个变量和每一个数据的变化.</p>
+<h4 id="1"><a href="#1" class="headerlink" title="1"></a>1</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line">//输出是什么？  </div><div class="line">&lt;script&gt;</div><div class="line"></div><div class="line">    var num = 123;</div><div class="line">    function func1() &#123;</div><div class="line">      num = 456;</div><div class="line">      function func2() &#123;</div><div class="line">        var num = 789;</div><div class="line">        function func3() &#123;</div><div class="line">          console.log( num );</div><div class="line">          var num = &apos;abc&apos;;</div><div class="line">        &#125;</div><div class="line">        func3();</div><div class="line">        console.log( num );</div><div class="line">      &#125;</div><div class="line">      func2();</div><div class="line">      console.log( num );</div><div class="line">    &#125;</div><div class="line">    func1();</div><div class="line">    </div><div class="line">  &lt;/script&gt;</div></pre></td></tr></table></figure>
+<p>尝试详细分析程序运行过程:<br>//1，预解析，代码从上往下，发现有两个声明，一个是var num,一个是函数func1<br>//预解析的时候，记录下func1与函数体相连<br>//预解析的时候，记录下名字num，但是没有值，所以值为undefined  </p>
+<p>// 预解析结束，开始执行代码，执行的第一句话是num=123；  </p>
+<p>//由于预解析处理函数声明, 因此函数的定义部分不参与代码的执行  </p>
+<p>//2执行第二句话，调用func1.<br>//开辟函数func1需要的内存空间, 传入数据(此处由于没有传参所以直接执行函数体)  </p>
+<p>// 进入函数体func1内，开始函数体func1内的预解析<br>//发现有函数声明func2.记录下func2与函数体相连  </p>
+<p>// 函数体func1的预解析结束，开始执行函数体func1<br>//第一句，赋值，将456 放到 num 中, 覆盖原有 123.  </p>
+<p>//3 第二句，调用func2  </p>
+<p>//开辟函数func2需要的内存空间, 传入数据(此处由于没有传参所以直接执行函数体)<br>//进入函数体func2内，开始函数体func2的预解析<br>//发现有函数声明func3和变量声明var num,记录下func3与函数体相连<br>//函数体func2的预解析结束，开始执行函数体func2<br>//第一句，赋值，给func2中新声明的局部变量num赋值789  </p>
+<p>//4 第二句，调用func3  </p>
+<p>//开辟函数func2需要的内存空间, 传入数据(此处由于没有传参所以直接执行函数体)<br>//进入函数体func3内，开始函数体func3的预解析<br>//发现有变量声明 var num<br>//函数体func3的预解析结束，开始执行函数体func3<br>//第一句，打印num，因为func3中有局部变量 num 的声明，所以打印的num为该变量，而该变量未赋值，所以打印 undefined<br>//第二句，给func3中的局部变量赋值”abc”  </p>
+<p>//func3执行结束，退出函数体。继续执行func2  </p>
+<p>//func2第三句，打印num，因为func2中有局部变量num的声明，且赋值为789，所以打印该变量，输出为789  </p>
+<p>//func2执行结束，退出函数体，继续执行func1  </p>
+<p>//func1第三句，打印num，因为func1中没有局部变量num的声明，所以向上一级查找var num<br>//发现此时全局变量 num=456 (func1第一句给全局变量完成了赋值)，所以打印全局变量num,输出为456  </p>
+<p>//至此，程序完全运行结束，控制台输出为：<br>//undefined<br>//789<br>//456  </p>
+<p>总结:<br>    通过详细分析程序的运行过程，可以充分理解源生JS程序的运行过程，锻炼自己的思考和编写能力，是个很好的学习方法，大家都可以试一试！:)</p>
+<h4 id="2"><a href="#2" class="headerlink" title="2"></a>2</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line">// 特例</div><div class="line">          if ( true ) &#123;</div><div class="line">            function foo() &#123;</div><div class="line">              console.log( true );</div><div class="line">            &#125;</div><div class="line">          &#125; else &#123;</div><div class="line">            function foo() &#123;</div><div class="line">              console.log( false );</div><div class="line">            &#125;</div><div class="line">          &#125;</div><div class="line"></div><div class="line"></div><div class="line">        foo()</div><div class="line">          </div><div class="line">          根据我们队函数的理解, 只要函数不在代码结构中, 那么函数就应该是声明, 而非表达式.</div><div class="line">          所以这个函数调用应该输出false  </div><div class="line">          </div><div class="line">          但是, 我们发现在火狐浏览器, 以及今天的谷歌浏览器中, 我们的预解析似乎会根据 if 中的判断进行预解析.然后输出true！</div><div class="line">          </div><div class="line">          只能认为在预解析的过程中, if 起作用了.</div></pre></td></tr></table></figure>
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
       
       
-      <section class="archives-wrap">
-        <div class="archive-year-wrap">
-          <a href="/archives/2017" class="archive-year">2017</a>
-        </div>
-        <div class="archives">
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2017/07/21/the-first/" class="archive-article-date">
-  	<time datetime="2017-07-21T11:23:41.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-07-21</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2017/07/21/the-first/">一个巨星陨落的时代</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">随笔</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2017/07/19/index/" class="archive-article-date">
-  	<time datetime="2017-07-19T11:27:01.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-07-19</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2017/07/19/index/">心要野</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">随笔</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2017/07/04/wsz/" class="archive-article-date">
-  	<time datetime="2017-07-04T04:32:22.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-07-04</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2017/07/04/wsz/">伪数组添加成员</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-          
+      
 	<div class="article-category tagcloud">
 		<i class="icon-book icon"></i>
 		<ul class="article-tag-list">
@@ -274,93 +223,119 @@
 	</div>
 
 
+      
+
+      
+        
+<div class="share-btn share-icons tooltip-left">
+  <div class="tooltip tooltip-east">
+    <span class="tooltip-item">
+      <a href="javascript:;" class="share-sns share-outer">
+        <i class="icon icon-share"></i>
+      </a>
+    </span>
+    <span class="tooltip-content">
+      <div class="share-wrap">
+        <div class="share-icons">
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="icon icon-weibo"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="icon icon-weixin"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="icon icon-qq"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="icon icon-douban"></i>
+          </a>
+          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a>
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="icon icon-facebook"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="icon icon-twitter"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="icon icon-google"></i>
+          </a>
         </div>
-        <div class="clearfix"></div>
-    </header>
+      </div>
+    </span>
+  </div>
+</div>
+
+<div class="page-modal wx-share js-wx-box">
+    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="http://s.jiathis.com/qrcode.php?url=http://yoursite.com/2017/06/01/jsanli/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div class="mask js-mask"></div>
+      
+      <div class="clearfix"></div>
+    </div>
   </div>
 </article>
+
   
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2017/07/01/jdt/" class="archive-article-date">
-  	<time datetime="2017-07-01T13:11:23.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-07-01</time>
-</a>
+<nav id="article-nav">
+  
+    <a href="/2017/07/01/index/" id="article-nav-newer" class="article-nav-link-wrap">
+      <i class="icon-circle-left"></i>
+      <div class="article-nav-title">
+        
+          进度条动画
+        
+      </div>
+    </a>
+  
+  
+</nav>
+
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
         </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2017/07/01/jdt/">进度条动画效果展示</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-          
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/Web心得/" class="article-tag-list-link color1">Web心得</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
+        
+        
+        <div class="toc-container tooltip-left">
+            <i class="icon-font icon-category"></i>
+            <div class="tooltip tooltip-east">
+                <span class="tooltip-item">
+                </span>
+                <span class="tooltip-content">
+                    <div class="toc-article">
+                    <ol class="toc"><li class="toc-item toc-level-4"><a class="toc-link" href="#1"><span class="toc-number">1.</span> <span class="toc-text">1</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2"><span class="toc-number">2.</span> <span class="toc-text">2</span></a></li></ol>
+                    </div>
+                </span>
+            </div>
         </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2017/07/01/index/" class="archive-article-date">
-  	<time datetime="2017-07-01T11:27:01.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-07-01</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2017/07/01/index/">进度条动画</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-          
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/Web心得/" class="article-tag-list-link color1">Web心得</a>
-        		</li>
-      		
-		</ul>
-	</div>
+        
+    </div>
+</aside>
 
 
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
+
   
   
-    </div></section>
   
 
-    
+  
+
+  
 
 
           </div>
@@ -383,8 +358,8 @@
 	var yiliaConfig = {
 		mathjax: false,
 		isHome: false,
-		isPost: false,
-		isArchive: true,
+		isPost: true,
+		isArchive: false,
 		isTag: false,
 		isCategory: false,
 		open_in_new: false,
